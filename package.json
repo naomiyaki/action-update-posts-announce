@@ -1,12 +1,12 @@
 {
-  "name": "action-update-posts",
-  "version": "0.0.4",
-  "repository": "git@github.com:TryGhost/action-update-posts.git",
-  "author": "Ghost Foundation",
+  "name": "action-update-posts-announce",
+  "version": "0",
+  "repository": "git@github.com:naomiyaki/action-update-posts-announce.git",
+  "author": "Naomi Rubin forked from Ghost Foundation",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider ncc build",
     "lint": "eslint . --ignore-pattern dist --ext .js --cache",
     "preship": "yarn build && yarn lint",
     "ship": "STATUS=$(git status --porcelain); echo $STATUS; if [ -z \"$STATUS\" ]; then yarn version && git push --follow-tags; fi"
@@ -17,6 +17,7 @@
   ],
   "devDependencies": {
     "@zeit/ncc": "0.22.3",
+    "cross-env": "^7.0.3",
     "eslint": "7.3.1",
     "eslint-plugin-ghost": "1.5.0"
   },

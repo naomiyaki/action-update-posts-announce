@@ -56,6 +56,10 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
+# Yarn Configuration
+.yarn
+.yarnrc.yml
+
 # dotenv environment variables file
 .env
 
