@@ -8,6 +8,7 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider ncc build",
     "lint": "eslint . --ignore-pattern dist --ext .js --cache",
+    "local": "dotenvx run -f .env.local -- node index.js",
     "preship": "yarn build && yarn lint",
     "ship": "STATUS=$(git status --porcelain); echo $STATUS; if [ -z \"$STATUS\" ]; then yarn version && git push --follow-tags; fi"
   },
@@ -16,6 +17,7 @@
     "lib"
   ],
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.32.0",
     "@zeit/ncc": "0.22.3",
     "cross-env": "^7.0.3",
     "eslint": "7.3.1",
