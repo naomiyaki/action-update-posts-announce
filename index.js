@@ -10,6 +10,13 @@ const localData = {
     days: process.env.DAYS,
 };
 
+// Function to remove a tag by its slug
+const removeTag = (tagToRemove, tags) => {
+    return tags.filter((tag) => {
+        return tag.slug !== tagToRemove;
+    });
+};
+
 /* eslint-disable no-console */
 if (local) {
     console.log("Running with local config");
@@ -99,36 +106,72 @@ const calculateDaysSince = (date) => {
                 // Assign the new field value from
                 // the workflow
                 post[field] = value;
-                // Set the post status to draft to "unpublish it"
-                post["status"] = "draft";
+
+                // Filter out the tag used to find posts
+                // so the post is no longer found by this script
+                const newTags = removeTag(localData.tag, post.tags);
+
+                // Make a new tags array (slugs only) including an optional published-tag
+                // to keep track of posts that have been made public
+                const tagSlugs = [
+                    ...newTags.map((tag) => tag.slug),
+                    localData.tagPost,
+                ];
+
+                // Replace the post tags with the new array
+                post["tags"] = tagSlugs;
+
                 console.log(
                     `Updating post "${post.title}" ${field} to ${value}`
                 );
                 // Edit the posts and unpublish them
                 await api.posts.edit(post);
-            })
-        );
 
-        const idFilter = postIDs.map((id) => `id:${id}`).join(",");
-        // Get the posts that were just unpublished with the saved IDs
-        // Ensure only draft posts are used
-        const unpublishedPosts = await api.posts.browse({
-            filter: `${idFilter}+status:draft`,
-        });
-
-        await Promise.all(
-            unpublishedPosts.map(async (post) => {
-                post["status"] = "published";
-                console.log(
-                    `Republishing post "${post.title}" with announcement`
+                // Afterwards, create new email only posts to
+                // announce the post updates
+                const announcementPost = await api.posts.add(
+                    {
+                        title: `${post.title} is now available for all readers!`,
+                        status: "draft",
+                        feature_image: post.feature_image,
+                        html: `<p>Today! <a href="${post.url}">You too can read this post.</a></p>`,
+                        email_only: true,
+                    },
+                    {
+                        source: "html",
+                    }
                 );
-                // Edit the posts and unpublish them
-                await api.posts.edit(post, {
+
+                // Publish the announcement post and send
+                // an email
+                announcementPost["status"] = "published";
+                await api.posts.edit(announcementPost, {
                     newsletter: "default-newsletter",
                     email_segment: "status:free",
                 });
             })
         );
+
+        // const idFilter = postIDs.map((id) => `id:${id}`).join(",");
+        // // Get the posts that were just unpublished with the saved IDs
+        // // Ensure only draft posts are used
+        // const unpublishedPosts = await api.posts.browse({
+        //     filter: `${idFilter}+status:draft`,
+        // });
+
+        // await Promise.all(
+        //     unpublishedPosts.map(async (post) => {
+        //         post["status"] = "published";
+        //         console.log(
+        //             `Republishing post "${post.title}" with announcement`
+        //         );
+        //         // Edit the posts and unpublish them
+        //         await api.posts.edit(post, {
+        //             newsletter: "default-newsletter",
+        //             email_segment: "status:free",
+        //         });
+        //     })
+        // );
     } catch (err) {
         console.error(err);
         process.exit(1);
