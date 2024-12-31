@@ -60,6 +60,9 @@ typings/
 .yarn
 .yarnrc.yml
 
+# Local code formatting
+.prettierrc
+
 # dotenv environment variables file
 .env
 .env.local
