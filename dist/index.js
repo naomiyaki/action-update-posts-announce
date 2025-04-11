@@ -766,7 +766,7 @@ const calculateDaysSince = (date) => {
                 // announce the post updates
                 const announcementPost = await api.posts.add(
                     {
-                        title: `${post.title} is now available for all readers!`,
+                        title: `New to read: ${post.title}`,
                         status: 'draft',
                         feature_image: post.feature_image,
                         html: `<p>Today! <a href="${post.url}">You too can read this post.</a></p>`,
